@@ -1,24 +1,25 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  overflow: hidden;
+  background: url('./bg.png') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .App-logo {
   height: 50px;
   pointer-events: none;
   padding-right: 20px;
 }
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-
-/* @keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-} */
 
 .nav {
   width: 100%;
@@ -28,57 +29,13 @@
   padding: 10px 20px;
   border-bottom: 2px solid white;
   position: relative;
+  margin: 0;
   z-index: 10;
 }
 
 .nav h1 {
   color: white;
-}
-
-.fileinput-container {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  margin-top: 20px;
-}
-
-.fileinput {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  justify-content: center;
-  width: auto;
-  margin: 0 auto;
-  margin-left: 47%;
-}
-
-.tagline {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: rgba(255, 255, 255, 0.741);
-  width: 100%;
-  text-align: center;
-  padding-top: 30px;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  /* box-sizing: border-box; */
-}
-
-body {
-  font-family: 'Inter', 'Helvetica Neue', sans-serif;
-  overflow: hidden;
-  background: #000;
-
-  /* background-color: #050505;
-  color: white;
-  height: 100vh;
-  display: flex; */ 
-  /* align-items: center;
-  justify-content: center; */
+  margin-left: 10px;
 }
 
 .content-container {
@@ -86,16 +43,76 @@ body {
   flex-direction: column;
   align-items: center;
   width: 100%;
+  padding: 20px;
+  margin-top: 40px;
 }
 
-p {
-  font-size: 1.2rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 2rem;
+.tagline {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.741);
+  text-align: center;
+  padding: 10px 0;
+}
+
+.sections-container {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 20px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 30px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  width: 45%;
+  min-width: 300px;
+}
+
+.section-title {
+  color: white;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+.fileinput {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 auto;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+}
+
+.fileinput::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.fileinput-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 20px 0;
 }
 
 .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px auto;
   background: linear-gradient(90deg, #ff3a82, #5233ff);
   color: white;
   font-weight: 600;
@@ -108,23 +125,14 @@ p {
   text-transform: uppercase;
   letter-spacing: 1px;
   box-shadow: 0 4px 20px rgba(255, 58, 130, 0.3);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-left: 45%;
-  margin-top: 40px;
-  color: rgba(255, 255, 255, 0.741);
-  /* width: 100%; */
-  text-align: center;
-  padding-top: 30px;
+  width: 100%;
+  max-width: 200px;
 }
 
 .btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 25px rgba(255, 58, 130, 0.4);
 }
-
-
 
 .gradient-sphere {
   position: absolute;
@@ -170,7 +178,6 @@ p {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-
 .grid-overlay {
   position: absolute;
   top: 0;
@@ -183,4 +190,3 @@ p {
       linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   z-index: 2;
 }
-

@@ -49,11 +49,36 @@ body {
 
 .tagline {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   color: rgba(255, 255, 255, 0.741);
-  text-align: center;
+  text-align: left;
   padding: 10px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0;
+  border-right: 2px solid rgba(255, 255, 255, 0.741);
+  animation: typing 5s steps(90) 4s infinite alternate,
+             blink 1s step-end infinite;
+  margin: 0;
+}
+
+@keyframes typing {
+  0% {
+    width: 0;
+  }
+  50% {
+    width: 30ch;
+  }
+  100% {
+    width: 0;
+  }
+}
+
+@keyframes blink {
+  20% {
+    border-color: transparent;
+  }
 }
 
 .sections-container {
@@ -75,12 +100,16 @@ body {
   backdrop-filter: blur(10px);
   width: 45%;
   min-width: 300px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .section-title {
   color: white;
   margin-bottom: 20px;
   font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
 }
 
 .fileinput {
@@ -89,11 +118,24 @@ body {
   justify-content: center;
   width: 100%;
   margin: 0 auto;
-  padding: 10px;
+  padding: 12px 15px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.fileinput:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.fileinput:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .fileinput::placeholder {
@@ -106,6 +148,7 @@ body {
   align-items: center;
   width: 100%;
   margin: 20px 0;
+  position: relative;
 }
 
 .btn {

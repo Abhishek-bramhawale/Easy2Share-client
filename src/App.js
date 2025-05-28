@@ -65,12 +65,11 @@ function App() {
               <input className="fileinput" type="file" multiple onChange={handleFileChange} />
             </div>
             <button className="btn" onClick={handleUploadFiles} disabled={uploading || files.length === 0}>
-              {uploading ? 'Uploading...' : 'Upload & Share'}
+              {uploading ? 'Uploading...' : 'Upload'}
             </button>
             {error && <p style={{ color: 'red' }}>{error}</p>}
-          </div><br />
 
-          {uploadedFilesInfo.length > 0 && (
+            {uploadedFilesInfo.length > 0 && (
             <div className="uploaded-files-section">
               <h3>Uploaded Files:</h3>
               {uploadedFilesInfo.map((fileInfo, index) => (
@@ -83,6 +82,9 @@ function App() {
               ))}
             </div>
           )}
+          </div><br />
+
+          
 
           <div className="section download-section">
             <h2 className="section-title">Download Files</h2>

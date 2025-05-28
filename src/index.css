@@ -87,7 +87,8 @@ body {
   gap: 40px;
   width: 100%;
   max-width: 1200px;
-  margin-top: 20px;
+  margin-top: 15px;
+  height: 530px;
 }
 
 .section {
@@ -177,6 +178,23 @@ body {
   box-shadow: 0 6px 25px rgba(255, 58, 130, 0.4);
 }
 
+.uploaded-files-section p{
+    padding: 5px;
+}
+
+/* #qr{
+  margin-top: 10px;
+  align-items: center;
+  align-content: center;
+} */
+
+/* .center-qr {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+} */
+
+/* 
 .gradient-sphere {
   position: absolute;
   border-radius: 50%;
@@ -232,4 +250,4 @@ body {
       linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
       linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   z-index: 2;
-}
+} */

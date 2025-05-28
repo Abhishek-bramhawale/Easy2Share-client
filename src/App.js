@@ -71,13 +71,16 @@ function App() {
 
             {uploadedFilesInfo.length > 0 && (
             <div className="uploaded-files-section">
-              <h3>Uploaded Files:</h3>
+              <h3 style={{marginBottom:10}}>Uploaded Files:</h3>
               {uploadedFilesInfo.map((fileInfo, index) => (
                 <div key={index} style={{ marginBottom: 20, border: '1px solid #ccc', padding: 10 }}>
                   <p><strong>File:</strong> {fileInfo.originalName}</p>
                   <p><strong>Code:</strong> {fileInfo.code}</p>
-                  <p><strong>Link:</strong> <a href={fileInfo.fileDownloadUrl} target="_blank" rel="noreferrer">{fileInfo.fileDownloadUrl}</a></p>
-                  <QRCode value={fileInfo.fileDownloadUrl} size={100} />
+                  <p><strong>Link:</strong> <a href={fileInfo.fileDownloadUrl} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>{fileInfo.fileDownloadUrl}</a></p>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
+  <QRCode value={fileInfo.fileDownloadUrl} size={100} />
+</div>
+
                 </div>
               ))}
             </div>

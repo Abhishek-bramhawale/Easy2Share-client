@@ -49,52 +49,60 @@ function App() {
   };
 
   return (
-    <div>
+    <div className="app-container">
       <nav className="nav">
         <img src={logo} className="App-logo" alt="logo" />
         <h2>Easy2share</h2>
       </nav>
 
-      <div className="content-container">
-        <h1 className="tagline">Instant share. Anytime, anywhere</h1><br />
+      <div className="gradient-background">
+        <div className="gradient-sphere sphere-1"></div>
+        <div className="gradient-sphere sphere-2"></div>
+        <div className="gradient-sphere sphere-3"></div>
+        <div className="grid-overlay"></div>
+        <div className="noise-overlay"></div>
+      </div>
 
-        <div className="sections-container">
-          <div className="section upload-section">
-            <h2 className="section-title">Upload Files</h2>
-            <div className="fileinput-container">
-              <input className="fileinput" type="file" multiple onChange={handleFileChange} />
+      <div className="content-wrapper">
+        <div className="content-container">
+          <h1 className="tagline">Instant share. Anytime, anywhere</h1>
+
+          <div className="sections-container">
+            <div className="section upload-section">
+              <h2 className="section-title">Upload Files</h2>
+              <div className="fileinput-container">
+                <input className="fileinput" type="file" multiple onChange={handleFileChange} />
+              </div>
+              <button className="btn" onClick={handleUploadFiles} disabled={uploading || files.length === 0}>
+                {uploading ? 'Uploading...' : 'Upload'}
+              </button>
+              {error && <p style={{ color: 'red' }}>{error}</p>}
+
+              {uploadedFilesInfo.length > 0 && (
+              <div className="uploaded-files-section">
+                <h3 style={{marginBottom:10}}>Uploaded Files:</h3>
+                {uploadedFilesInfo.map((fileInfo, index) => (
+                  <div key={index} style={{ marginBottom: 20, border: '1px solid #ccc', padding: 10 }}>
+                    <p><strong>File:</strong> {fileInfo.originalName}</p>
+                    <p><strong>Code:</strong> {fileInfo.code}</p>
+                    <p><strong>Link:</strong> <a href={fileInfo.fileDownloadUrl} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>{fileInfo.fileDownloadUrl}</a></p>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
+    <QRCode value={fileInfo.fileDownloadUrl} size={100} />
+  </div>
+
+                  </div>
+                ))}
+              </div>
+            )}
             </div>
-            <button className="btn" onClick={handleUploadFiles} disabled={uploading || files.length === 0}>
-              {uploading ? 'Uploading...' : 'Upload'}
-            </button>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
 
-            {uploadedFilesInfo.length > 0 && (
-            <div className="uploaded-files-section">
-              <h3 style={{marginBottom:10}}>Uploaded Files:</h3>
-              {uploadedFilesInfo.map((fileInfo, index) => (
-                <div key={index} style={{ marginBottom: 20, border: '1px solid #ccc', padding: 10 }}>
-                  <p><strong>File:</strong> {fileInfo.originalName}</p>
-                  <p><strong>Code:</strong> {fileInfo.code}</p>
-                  <p><strong>Link:</strong> <a href={fileInfo.fileDownloadUrl} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>{fileInfo.fileDownloadUrl}</a></p>
-                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
-  <QRCode value={fileInfo.fileDownloadUrl} size={100} />
-</div>
-
-                </div>
-              ))}
+            <div className="section download-section">
+              <h2 className="section-title">Download Files</h2>
+              <div className="fileinput-container">
+                <input className="fileinput" type="text" placeholder="Enter file code" value={inputCode} onChange={e => setInputCode(e.target.value)} />
+              </div>
+              <button className="btn" onClick={downloadWithCode} disabled={!inputCode}>Download</button>
             </div>
-          )}
-          </div><br />
-
-          
-
-          <div className="section download-section">
-            <h2 className="section-title">Download Files</h2>
-            <div className="fileinput-container">
-              <input className="fileinput" type="text" placeholder="Enter file code" value={inputCode} onChange={e => setInputCode(e.target.value)} />
-            </div>
-            <button className="btn" onClick={downloadWithCode} disabled={!inputCode}>Download</button>
           </div>
         </div>
       </div>

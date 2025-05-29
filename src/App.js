@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import QRCode from 'react-qr-code';
 import logo from './newogo2.png';
@@ -11,10 +11,33 @@ function App() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [inputCode, setInputCode] = useState('');
+  const [uploadButtonText, setUploadButtonText] = useState('Upload');
+  const statusTimerRef = useRef(null);
 
   const handleFileChange = (e) => {
     setFiles(Array.from(e.target.files));
     setError('');
+  };
+
+  const startStatusUpdates = () => {
+    const statuses = ['Uploading...', 'Processing...', 'Generating Codes...', 'Almost done...'];
+    let statusIndex = 0;
+
+    const updateText = () => {
+      setUploadButtonText(statuses[statusIndex % statuses.length]);
+      statusIndex++;
+    };
+
+    updateText();
+
+    statusTimerRef.current = setInterval(updateText, 2000);
+  };
+
+  const stopStatusUpdates = () => {
+    if (statusTimerRef.current) {
+      clearInterval(statusTimerRef.current);
+      statusTimerRef.current = null;
+    }
   };
 
   const handleUploadFiles = async () => {
@@ -24,6 +47,7 @@ function App() {
     }
 
     setUploading(true);
+    startStatusUpdates();
     setError('');
     setUploadedFilesInfo([]);
 
@@ -34,11 +58,29 @@ function App() {
 
     try {
       const res = await axios.post(`${API_URL}/upload`, formData);
-      setUploadedFilesInfo(res.data.files);
+      const uploadedFiles = res.data.files;
+
+      stopStatusUpdates();
+
+      let fileInfoDisplayDelay = 500;
+      uploadedFiles.forEach((fileInfo, index) => {
+        setTimeout(() => {
+          setUploadedFilesInfo(prevInfo => [...prevInfo, fileInfo]);
+        }, fileInfoDisplayDelay);
+        fileInfoDisplayDelay += 2000;
+      });
+
+      setTimeout(() => {
+         setUploading(false);
+         setUploadButtonText('Upload');
+      }, fileInfoDisplayDelay + 500);
+
     } catch (err) {
+      console.error('Upload error:', err);
+      stopStatusUpdates();
       setError(err.response?.data?.error || 'Error uploading files');
-    } finally {
       setUploading(false);
+      setUploadButtonText('Upload');
     }
   };
 
@@ -74,7 +116,7 @@ function App() {
                 <input className="fileinput" type="file" multiple onChange={handleFileChange} />
               </div>
               <button className="btn" onClick={handleUploadFiles} disabled={uploading || files.length === 0}>
-                {uploading ? 'Uploading...' : 'Upload'}
+                {uploadButtonText}
               </button>
               {error && <p style={{ color: 'red' }}>{error}</p>}
 

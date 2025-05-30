@@ -97,13 +97,13 @@ function App() {
         <h2>Easy2share</h2>
       </nav>
 
-      <div className="gradient-background">
+      {/* <div className="gradient-background">
         <div className="gradient-sphere sphere-1"></div>
         <div className="gradient-sphere sphere-2"></div>
         <div className="gradient-sphere sphere-3"></div>
         <div className="grid-overlay"></div>
         <div className="noise-overlay"></div>
-      </div>
+      </div> */}
 
       <div className="content-wrapper">
         <div className="content-container">

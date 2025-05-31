@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import QRCode from 'react-qr-code';
 import logo from './newogo2.png';
+import './App.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -12,11 +13,38 @@ function App() {
   const [error, setError] = useState('');
   const [inputCode, setInputCode] = useState('');
   const [uploadButtonText, setUploadButtonText] = useState('Upload');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadSpeed, setUploadSpeed] = useState(0);
+  const [uploadedSize, setUploadedSize] = useState(0);
+  const [totalSize, setTotalSize] = useState(0);
+  const lastLoadedRef = useRef(0);
+  const lastTimeRef = useRef(Date.now());
   const statusTimerRef = useRef(null);
+  const progressIntervalRef = useRef(null);
+
+  const formatBytes = (bytes, decimals = 2) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  };
+
+  const formatSpeed = (bytesPerSecond) => {
+    return formatBytes(bytesPerSecond) + '/s';
+  };
 
   const handleFileChange = (e) => {
-    setFiles(Array.from(e.target.files));
+    const selectedFiles = Array.from(e.target.files);
+    setFiles(selectedFiles);
     setError('');
+    setUploadProgress(0);
+    setUploadSpeed(0);
+    setUploadedSize(0);
+    
+    const total = selectedFiles.reduce((acc, file) => acc + file.size, 0);
+    setTotalSize(total);
   };
 
   const startStatusUpdates = () => {
@@ -29,7 +57,6 @@ function App() {
     };
 
     updateText();
-
     statusTimerRef.current = setInterval(updateText, 2000);
   };
 
@@ -37,6 +64,10 @@ function App() {
     if (statusTimerRef.current) {
       clearInterval(statusTimerRef.current);
       statusTimerRef.current = null;
+    }
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
     }
   };
 
@@ -50,6 +81,11 @@ function App() {
     startStatusUpdates();
     setError('');
     setUploadedFilesInfo([]);
+    setUploadProgress(0);
+    setUploadSpeed(0);
+    setUploadedSize(0);
+    lastLoadedRef.current = 0;
+    lastTimeRef.current = Date.now();
 
     const formData = new FormData();
     files.forEach(file => {
@@ -57,9 +93,24 @@ function App() {
     });
 
     try {
-      const res = await axios.post(`${API_URL}/upload`, formData);
+      const res = await axios.post(`${API_URL}/upload`, formData, {
+        onUploadProgress: (progressEvent) => {
+          const currentTime = Date.now();
+          const timeDiff = (currentTime - lastTimeRef.current) / 1000; // Convert to seconds
+          const loadedDiff = progressEvent.loaded - lastLoadedRef.current;
+          
+          const speed = timeDiff > 0 ? loadedDiff / timeDiff : 0;
+          
+          setUploadSpeed(speed);
+          setUploadedSize(progressEvent.loaded);
+          setUploadProgress(Math.round((progressEvent.loaded * 100) / progressEvent.total));
+          
+          lastLoadedRef.current = progressEvent.loaded;
+          lastTimeRef.current = currentTime;
+        }
+      });
+      
       const uploadedFiles = res.data.files;
-
       stopStatusUpdates();
 
       let fileInfoDisplayDelay = 500;
@@ -71,8 +122,11 @@ function App() {
       });
 
       setTimeout(() => {
-         setUploading(false);
-         setUploadButtonText('Upload');
+        setUploading(false);
+        setUploadButtonText('Upload');
+        setUploadProgress(0);
+        setUploadSpeed(0);
+        setUploadedSize(0);
       }, fileInfoDisplayDelay + 500);
 
     } catch (err) {
@@ -81,6 +135,9 @@ function App() {
       setError(err.response?.data?.error || 'Error uploading files');
       setUploading(false);
       setUploadButtonText('Upload');
+      setUploadProgress(0);
+      setUploadSpeed(0);
+      setUploadedSize(0);
     }
   };
 
@@ -97,13 +154,7 @@ function App() {
         <h2>Easy2share</h2>
       </nav>
 
-      {/* <div className="gradient-background">
-        <div className="gradient-sphere sphere-1"></div>
-        <div className="gradient-sphere sphere-2"></div>
-        <div className="gradient-sphere sphere-3"></div>
-        <div className="grid-overlay"></div>
-        <div className="noise-overlay"></div>
-      </div> */}
+    
 
       <div className="content-wrapper">
         <div className="content-container">
@@ -120,22 +171,37 @@ function App() {
               </button>
               {error && <p style={{ color: 'red' }}>{error}</p>}
 
-              {uploadedFilesInfo.length > 0 && (
-              <div className="uploaded-files-section">
-                <h3 style={{marginBottom:10}}>Uploaded Files:</h3>
-                {uploadedFilesInfo.map((fileInfo, index) => (
-                  <div key={index} style={{ marginBottom: 20, border: '1px solid #ccc', padding: 10 }}>
-                    <p><strong>File:</strong> {fileInfo.originalName}</p>
-                    <p><strong>Code:</strong> {fileInfo.code}</p>
-                    <p><strong>Link:</strong> <a href={fileInfo.fileDownloadUrl} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>{fileInfo.fileDownloadUrl}</a></p>
-                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
-    <QRCode value={fileInfo.fileDownloadUrl} size={100} />
-  </div>
-
+              {uploading && (
+                <div className="progress-container">
+                  <div 
+                    className="progress-bar" 
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                  <div className="progress-info">
+                    <span className="progress-text">{uploadProgress}%</span>
+                    <span className="progress-speed">{formatSpeed(uploadSpeed)}</span>
+                    <span className="progress-size">
+                      {formatBytes(uploadedSize)} / {formatBytes(totalSize)}
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              )}
+
+              {uploadedFilesInfo.length > 0 && (
+                <div className="uploaded-files-section">
+                  <h3 style={{marginBottom:10}}>Uploaded Files:</h3>
+                  {uploadedFilesInfo.map((fileInfo, index) => (
+                    <div key={index} style={{ marginBottom: 20, border: '1px solid #ccc', padding: 10 }}>
+                      <p><strong>File:</strong> {fileInfo.originalName}</p>
+                      <p><strong>Code:</strong> {fileInfo.code}</p>
+                      <p><strong>Link:</strong> <a href={fileInfo.fileDownloadUrl} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>{fileInfo.fileDownloadUrl}</a></p>
+                      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
+                        <QRCode value={fileInfo.fileDownloadUrl} size={100} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="section download-section">

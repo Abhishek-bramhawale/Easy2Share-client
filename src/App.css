@@ -76,8 +76,23 @@
   object-fit: contain;
 }
 
-
-
 .qr-container .qr-code {
   flex-shrink: 0;
+}
+
+.info-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  cursor: help;
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.info-icon:hover {
+  color: #3100f7;
+}
+
+.info-icon svg {
+  vertical-align: middle;
 }

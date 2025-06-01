@@ -6,6 +6,7 @@ import scanme from './scanme.png';
 import './App.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const CLIENT_URL = 'https://easy2-share-client.vercel.app/';
 
 function App() {
   const [files, setFiles] = useState([]);
@@ -194,7 +195,14 @@ function App() {
                   {uploadedFilesInfo.map((fileInfo, index) => (
                     <div key={index} style={{ marginBottom: 20, border: '1px solid #ccc', padding: 10 }}>
                       <p><strong>File:</strong> {fileInfo.originalName}</p>
-                      <p><strong>Code:</strong> {fileInfo.code}</p>
+                      <p><strong>Code:</strong> {fileInfo.code} 
+                        <span className="info-icon" title={`Go to ${CLIENT_URL} and enter this code`}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                          </svg>
+                        </span>
+                      </p>
                       <p><strong>Link:</strong> <a href={fileInfo.fileDownloadUrl} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>{fileInfo.fileDownloadUrl}</a></p>
                       <div className="qr-container">
                         <img className="scan" src={scanme} alt="Scan me" />

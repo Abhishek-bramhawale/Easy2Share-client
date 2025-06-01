@@ -24,6 +24,8 @@ function App() {
   const statusTimerRef = useRef(null);
   const progressIntervalRef = useRef(null);
   const [copySuccess, setCopySuccess] = useState('');
+  const [downloadStatus, setDownloadStatus] = useState('');
+  const [showMultiDownloadInstruction, setShowMultiDownloadInstruction] = useState(false);
 
   const formatBytes = (bytes, decimals = 2) => {
     if (bytes === 0) return '0 Bytes';
@@ -46,6 +48,9 @@ function App() {
     setUploadSpeed(0);
     setUploadedSize(0);
     
+    // Show instruction if multiple files are selected
+    setShowMultiDownloadInstruction(selectedFiles.length > 1);
+
     const total = selectedFiles.reduce((acc, file) => acc + file.size, 0);
     setTotalSize(total);
   };
@@ -81,9 +86,9 @@ function App() {
     }
 
     setUploading(true);
+    setUploadedFilesInfo([]);
     startStatusUpdates();
     setError('');
-    setUploadedFilesInfo([]);
     setUploadProgress(0);
     setUploadSpeed(0);
     setUploadedSize(0);
@@ -113,16 +118,17 @@ function App() {
         }
       });
       
+      console.log('Full upload response:', res);
+      console.log('Upload response data:', res.data);
       const uploadedFiles = res.data.files;
       stopStatusUpdates();
 
-      let fileInfoDisplayDelay = 500;
-      uploadedFiles.forEach((fileInfo, index) => {
-        setTimeout(() => {
-          setUploadedFilesInfo(prevInfo => [...prevInfo, fileInfo]);
-        }, fileInfoDisplayDelay);
-        fileInfoDisplayDelay += 2000;
-      });
+      if (uploadedFiles && uploadedFiles.length > 0) {
+        const batchInfo = uploadedFiles[0];
+        console.log('Setting batch file info:', batchInfo);
+        console.log('Batch info details:', JSON.stringify(batchInfo, null, 2));
+        setUploadedFilesInfo([batchInfo]);
+      }
 
       setTimeout(() => {
         setUploading(false);
@@ -130,7 +136,7 @@ function App() {
         setUploadProgress(0);
         setUploadSpeed(0);
         setUploadedSize(0);
-      }, fileInfoDisplayDelay + 500);
+      }, 2500);
 
     } catch (err) {
       console.error('Upload error:', err);
@@ -144,9 +150,58 @@ function App() {
     }
   };
 
-  const downloadWithCode = () => {
+  const downloadWithCode = async () => {
     if (inputCode) {
-      window.location.href = `${API_URL}/download/${inputCode}`;
+      try {
+        setDownloadStatus('Fetching files...');
+        console.log('Fetching files for code:', inputCode);
+        const response = await axios.get(`${API_URL}/download/${inputCode}`);
+        console.log('Full download response:', response);
+        console.log('Download response data:', response.data);
+        
+        if (response.data.success) {
+          const files = response.data.files;
+          console.log('Files array from response:', files);
+          console.log('Number of files to download:', files.length);
+          setDownloadStatus(`Initiating ${files.length} downloads...`);
+          
+          // Initiate downloads by opening each file URL in a new tab/window
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            console.log(`Opening download URL for file ${i + 1}:`, file.name, file.url);
+            
+            // Using window.open might be more reliable for multiple downloads
+            // We create a temporary link to use its download attribute capability with window.open
+            const link = document.createElement('a');
+            link.href = file.url;
+            link.download = file.name; // Suggests a filename for download
+            link.target = '_blank'; // Open in a new tab
+            
+            // Append the link to the body temporarily and then open it
+            document.body.appendChild(link);
+            window.open(link.href, '_blank');
+            document.body.removeChild(link);
+            
+            // Add a small delay between opening windows
+            if (i < files.length - 1) {
+               console.log('Adding delay before opening next download...');
+              await new Promise(resolve => setTimeout(resolve, 500)); // Slightly shorter delay
+            }
+          }
+          
+          setDownloadStatus('Download initiated for all files. Check your browser tabs/downloads.');
+          console.log('All download windows/tabs initiated.');
+          setTimeout(() => setDownloadStatus(''), 5000); // Keep message longer for user to notice
+        } else {
+          console.error('Download failed - response success is false:', response.data);
+          setError(response.data.error || 'Failed to fetch file information for download. Please try again.');
+          setDownloadStatus('');
+        }
+      } catch (error) {
+        console.error('Download error in catch block:', error);
+        setError('Error initiating download process. Please try again.');
+        setDownloadStatus('');
+      }
     }
   };
 
@@ -200,39 +255,47 @@ function App() {
                 </div>
               )}
 
-              {uploadedFilesInfo.length > 0 && (
+              {uploadedFilesInfo.length > 0 && uploadedFilesInfo[0] && uploadedFilesInfo[0].files && (
                 <div className="uploaded-files-section">
                   <h3 style={{marginBottom:10}}>Uploaded Files:</h3>
-                  {uploadedFilesInfo.map((fileInfo, index) => (
-                    <div key={index} style={{ marginBottom: 20, border: '1px solid #ccc', padding: 10 }}>
-                      <p><strong>File:</strong> {fileInfo.originalName}</p>
-                      <p><strong>Code:</strong> {fileInfo.code} 
-                        <span className="info-icon" title={`Go to ${CLIENT_URL} and enter this code`} onClick={() => copyToClipboard(fileInfo.code)}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="16" x2="12" y2="12"></line>
-                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                          </svg>
-                        </span>
-                        {copySuccess === 'Copied!' && <span className="copy-success">Copied!</span>}
-                      </p>
-                      <p><strong>Link:</strong> <a href={fileInfo.fileDownloadUrl} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>{fileInfo.fileDownloadUrl}</a>
-                        <span className="info-icon" title="Go to any browser and enter this URL" onClick={() => copyToClipboard(fileInfo.fileDownloadUrl)}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="16" x2="12" y2="12"></line>
-                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                          </svg>
-                        </span>
-                      </p>
-                      <div className="qr-container">
-                        <img className="scan" src={scanme} alt="Scan me" />
-                        <div className="qr-code">
-                          <QRCode value={fileInfo.fileDownloadUrl} size={100} />
-                        </div>
+                  {/* Instruction for multiple file downloads */}
+                  {showMultiDownloadInstruction && (
+                    <p style={{ color: 'orange', marginTop: '10px', marginBottom: '10px', fontSize: '14px' }}>
+                      You have uploaded multiple files. When you use the download code/link, your browser may block multiple downloads as pop-ups. Please allow pop-ups for this site if prompted.
+                    </p>
+                  )}
+                  <div style={{ marginBottom: 20, border: '1px solid #ccc', padding: 10 }}>
+                    <div style={{ marginBottom: '15px' }}>
+                      {uploadedFilesInfo[0].files.map((fileName, index) => (
+                        <p key={index}><strong>File {index + 1}:</strong> {fileName}</p>
+                      ))}
+                    </div>
+                    <p><strong>Code:</strong> {uploadedFilesInfo[0].code} 
+                      <span className="info-icon" title={`Go to ${CLIENT_URL} and enter this code`} onClick={() => copyToClipboard(uploadedFilesInfo[0].code)}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line x1="12" y1="16" x2="12" y2="12"></line>
+                          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                      </span>
+                      {copySuccess === 'Copied!' && <span className="copy-success">Copied!</span>}
+                    </p>
+                    <p><strong>Link:</strong> <a href={uploadedFilesInfo[0].fileDownloadUrl} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>{uploadedFilesInfo[0].fileDownloadUrl}</a>
+                      <span className="info-icon" title="Go to any browser and enter this URL" onClick={() => copyToClipboard(uploadedFilesInfo[0].fileDownloadUrl)}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line x1="12" y1="16" x2="12" y2="12"></line>
+                          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                      </span>
+                    </p>
+                    <div className="qr-container">
+                      <img className="scan" src={scanme} alt="Scan me" />
+                      <div className="qr-code">
+                        <QRCode value={uploadedFilesInfo[0].fileDownloadUrl} size={100} />
                       </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
               )}
             </div>

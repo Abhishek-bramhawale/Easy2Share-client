@@ -29,6 +29,16 @@ function App() {
   const [showColdStartMessage, setShowColdStartMessage] = useState(false);
   const coldStartTimerRef = useRef(null);
 
+  // Add useEffect to handle code from URL
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    if (code) {
+      setInputCode(code);
+      downloadWithCode(code);
+    }
+  }, []);
+
   const formatBytes = (bytes, decimals = 2) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -321,7 +331,7 @@ function App() {
                     <div className="qr-container">
                       <img className="scan" src={scanme} alt="Scan me" />
                       <div className="qr-code">
-                        <QRCode value={`${API_URL}/download/${uploadedFilesInfo[0].code}`} size={100} />
+                        <QRCode value={`${CLIENT_URL}?code=${uploadedFilesInfo[0].code}`} size={100} />
                       </div>
                     </div>
                   </div>

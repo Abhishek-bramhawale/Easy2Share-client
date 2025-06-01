@@ -331,7 +331,7 @@ function App() {
                     <div className="qr-container">
                       <img className="scan" src={scanme} alt="Scan me" />
                       <div className="qr-code">
-                        <QRCode value={`${CLIENT_URL}?code=${uploadedFilesInfo[0].code}`} size={100} />
+                        <QRCode value={`${API_URL}?code=${uploadedFilesInfo[0].code}`} size={100} />
                       </div>
                     </div>
                   </div>

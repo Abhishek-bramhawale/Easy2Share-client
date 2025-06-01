@@ -52,7 +52,6 @@
   text-align: center;
 }
 
-/* Add a dark overlay to the progress bar to ensure text is readable */
 .progress-bar::after {
   content: '';
   position: absolute;
@@ -62,4 +61,23 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.1);
   pointer-events: none;
+}
+
+.qr-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 12px;
+}
+
+.qr-container img {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+}
+
+
+
+.qr-container .qr-code {
+  flex-shrink: 0;
 }

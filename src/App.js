@@ -270,7 +270,7 @@ function App() {
               )}
 
               {uploading && (
-                <div className="progress-container">
+                <div className="progress-container" title="If the progress is stuck at 0%, it may be because Render's free plan puts the server to sleep after 15 minutes of inactivity. Just wait a few seconds..">
                   <div 
                     className="progress-bar" 
                     style={{ width: `${uploadProgress}%` }}

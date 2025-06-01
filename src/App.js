@@ -330,7 +330,12 @@ function App() {
                     </p>
                     <div className="qr-container">
                       <img className="scan" src={scanme} alt="Scan me" />
-                      <div className="qr-code">
+                      <div className="qr-code" style={{ 
+                        backgroundColor: 'white', 
+                        padding: '10px',
+                        borderRadius: '8px',
+                        boxShadow: '0 0 10px rgba(255, 255, 255, 0.3)'
+                      }}>
                         <QRCode value={`${API_URL}/download/${uploadedFilesInfo[0].code}`} size={100} />
                       </div>
                     </div>

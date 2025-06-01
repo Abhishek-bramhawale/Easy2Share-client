@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import QRCode from 'react-qr-code';
 import logo from './newogo2.png';
+import scanme from './scanme.png';
 import './App.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -195,8 +196,11 @@ function App() {
                       <p><strong>File:</strong> {fileInfo.originalName}</p>
                       <p><strong>Code:</strong> {fileInfo.code}</p>
                       <p><strong>Link:</strong> <a href={fileInfo.fileDownloadUrl} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>{fileInfo.fileDownloadUrl}</a></p>
-                      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
-                        <QRCode value={fileInfo.fileDownloadUrl} size={100} />
+                      <div className="qr-container">
+                        <img className="scan" src={scanme} alt="Scan me" />
+                        <div className="qr-code">
+                          <QRCode value={fileInfo.fileDownloadUrl} size={100} />
+                        </div>
                       </div>
                     </div>
                   ))}

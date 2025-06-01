@@ -116,7 +116,7 @@ function App() {
         if (uploadProgress === 0 && uploading) { // Check against the state value at the time the timer fires
             setShowColdStartMessage(true);
         }
-    }, 2000); // 3 seconds delay
+    }, 3000); // 3 seconds delay
 
     const formData = new FormData();
     files.forEach(file => {
@@ -262,6 +262,7 @@ function App() {
               </button>
               {error && <p style={{ color: 'red' }}>{error}</p>}
 
+              {/* Cold Start Message */}
               {showColdStartMessage && (
                 <p style={{ color: 'yellow', marginTop: '10px', fontSize: '14px', textAlign: 'center' }}>
                   Render's free plan causes cold starts after inactivity — please wait just 5 seconds..
@@ -319,7 +320,7 @@ function App() {
                     >
                       {`${API_URL}/download/${uploadedFilesInfo[0].code}`}
                     </a>
-                      <span className="info-icon" title="Enter this link directly on any browser" onClick={() => copyToClipboard(`${API_URL}/download/${uploadedFilesInfo[0].code}`)}>
+                      <span className="info-icon" title="Click to download the file" onClick={() => copyToClipboard(`${API_URL}/download/${uploadedFilesInfo[0].code}`)}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <circle cx="12" cy="12" r="10"></circle>
                           <line x1="12" y1="16" x2="12" y2="12"></line>

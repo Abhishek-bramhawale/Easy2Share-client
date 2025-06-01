@@ -50,7 +50,6 @@ function App() {
     setUploadSpeed(0);
     setUploadedSize(0);
     
-    // Show instruction if multiple files are selected
     setShowMultiDownloadInstruction(selectedFiles.length > 1);
 
     const total = selectedFiles.reduce((acc, file) => acc + file.size, 0);
@@ -79,7 +78,6 @@ function App() {
       clearInterval(progressIntervalRef.current);
       progressIntervalRef.current = null;
     }
-    // Clear cold start timer and hide message when upload stops
     if (coldStartTimerRef.current) {
         clearTimeout(coldStartTimerRef.current);
         coldStartTimerRef.current = null;
@@ -104,7 +102,6 @@ function App() {
     lastTimeRef.current = Date.now();
     setShowColdStartMessage(false); // Hide message at the start of upload
 
-    // Set a timer to show cold start message if progress is stuck at 0
     coldStartTimerRef.current = setTimeout(() => {
         if (uploadProgress === 0 && uploading) { // Check against the state value at the time the timer fires
             setShowColdStartMessage(true);
@@ -119,7 +116,6 @@ function App() {
     try {
       const res = await axios.post(`${API_URL}/upload`, formData, {
         onUploadProgress: (progressEvent) => {
-          // Clear cold start timer if progress starts
           if (progressEvent.loaded > 0 && coldStartTimerRef.current) {
               clearTimeout(coldStartTimerRef.current);
               coldStartTimerRef.current = null;
@@ -177,25 +173,32 @@ function App() {
     if (code) {
       try {
         setDownloadStatus('Fetching files...');
-        const response = await axios.get(`${API_URL}/download/${code}`);
+        const checkResponse = await axios.head(`${API_URL}/download/${code}`);
         
-        if (response.data.success && response.data.files.length > 0) {
-          const files = response.data.files;
-          setDownloadStatus(`Opening ${files.length} file(s)...`);
+        if (checkResponse.status === 200) {
+          const downloadUrl = `${API_URL}/download/${code}`;
+          setDownloadStatus('Opening download...');
           
-          // Open each file URL in a new tab
-          files.forEach(file => {
-            window.open(file.url, '_blank');
-          });
+          const link = document.createElement('a');
+          link.href = downloadUrl;
+          link.target = '_blank';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
           
-          setDownloadStatus('Downloads initiated. Check your browser tabs/downloads.');
+          setDownloadStatus('Download initiated. Check your browser tabs/downloads.');
           setTimeout(() => setDownloadStatus(''), 5000);
         } else {
           setError('No files found for this code');
           setDownloadStatus('');
         }
       } catch (error) {
-        setError('Error downloading file. Please try again.');
+        console.error('Download error:', error);
+        if (error.response && error.response.status === 404) {
+          setError('Invalid code or files not found');
+        } else {
+          setError('Error downloading file. Please try again.');
+        }
         setDownloadStatus('');
       }
     }

@@ -58,7 +58,7 @@ function App() {
   };
 
   const startStatusUpdates = () => {
-    const statuses = ['Uploading...', 'Processing...', 'Generating Codes...', 'Almost done...'];
+    const statuses = ['Initializing...', 'Uploading...', 'Processing...', 'Finalizing...', 'Almost done...'];
     let statusIndex = 0;
 
     const updateText = () => {

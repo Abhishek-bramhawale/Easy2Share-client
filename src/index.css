@@ -307,6 +307,7 @@ body {
     width: 95%;
     min-width: 0;
     padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
   }
 
   .nav {
@@ -340,6 +341,10 @@ body {
 
   @keyframes blink {
     50% { border-color: transparent; }
+  }
+
+  body {
+    background-position: top center; /* Adjust position to show top part of image */
   }
 }
 

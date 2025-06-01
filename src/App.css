@@ -84,15 +84,32 @@
   display: inline-flex;
   align-items: center;
   margin-left: 8px;
-  cursor: help;
+  cursor: pointer;
   color: #666;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
+  padding: 4px;
+  border-radius: 50%;
 }
 
 .info-icon:hover {
   color: #3100f7;
+  background-color: rgba(49, 0, 247, 0.1);
 }
 
 .info-icon svg {
   vertical-align: middle;
+}
+
+.copy-success {
+  margin-left: 8px;
+  color: #4CAF50;
+  font-size: 12px;
+  animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
 }

@@ -173,54 +173,29 @@ function App() {
     }
   };
 
-  const downloadWithCode = async () => {
-    if (inputCode) {
+  const downloadWithCode = async (code) => {
+    if (code) {
       try {
         setDownloadStatus('Fetching files...');
-        console.log('Fetching files for code:', inputCode);
-        const response = await axios.get(`${API_URL}/download/${inputCode}`);
-        console.log('Full download response:', response);
-        console.log('Download response data:', response.data);
+        const response = await axios.get(`${API_URL}/download/${code}`);
         
-        if (response.data.success) {
+        if (response.data.success && response.data.files.length > 0) {
           const files = response.data.files;
-          console.log('Files array from response:', files);
-          console.log('Number of files to download:', files.length);
-          setDownloadStatus(`Initiating ${files.length} downloads...`);
+          setDownloadStatus(`Opening ${files.length} file(s)...`);
           
-          for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            console.log(`Opening download URL for file ${i + 1}:`, file.name, file.url);
-            
-            
-            const link = document.createElement('a');
-            link.href = file.url;
-            link.download = file.name; // Suggests a filename for download
-            link.target = '_blank'; 
-            
-            // Append the link to the body temporarily and then open it
-            document.body.appendChild(link);
-            window.open(link.href, '_blank');
-            document.body.removeChild(link);
-            
-            
-            if (i < files.length - 1) {
-               console.log('Adding delay before opening next download...');
-              await new Promise(resolve => setTimeout(resolve, 500)); 
-            }
-          }
+          // Open each file URL in a new tab
+          files.forEach(file => {
+            window.open(file.url, '_blank');
+          });
           
-          setDownloadStatus('Download initiated for all files. Check your browser tabs/downloads.');
-          console.log('All download windows/tabs initiated.');
-          setTimeout(() => setDownloadStatus(''), 5000); 
+          setDownloadStatus('Downloads initiated. Check your browser tabs/downloads.');
+          setTimeout(() => setDownloadStatus(''), 5000);
         } else {
-          console.error('Download failed - response success is false:', response.data);
-          setError(response.data.error || 'Failed to fetch file information for download. Please try again.');
+          setError('No files found for this code');
           setDownloadStatus('');
         }
       } catch (error) {
-        console.error('Download error in catch block:', error);
-        setError('Error initiating download process. Please try again.');
+        setError('Error downloading file. Please try again.');
         setDownloadStatus('');
       }
     }
@@ -308,8 +283,17 @@ function App() {
                       </span>
                       {copySuccess === 'Copied!' && <span className="copy-success">Copied!</span>}
                     </p>
-                    <p><strong>Link:</strong> <a href={uploadedFilesInfo[0].fileDownloadUrl} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>{uploadedFilesInfo[0].fileDownloadUrl}</a>
-                      <span className="info-icon" title="Go to any browser and enter this URL" onClick={() => copyToClipboard(uploadedFilesInfo[0].fileDownloadUrl)}>
+                    <p><strong>Link:</strong> <a 
+                      href="#" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        downloadWithCode(uploadedFilesInfo[0].code);
+                      }} 
+                      style={{ color: 'inherit', textDecoration: 'none' }}
+                    >
+                      {`${API_URL}/download/${uploadedFilesInfo[0].code}`}
+                    </a>
+                      <span className="info-icon" title="Click to download the file" onClick={() => copyToClipboard(`${API_URL}/download/${uploadedFilesInfo[0].code}`)}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <circle cx="12" cy="12" r="10"></circle>
                           <line x1="12" y1="16" x2="12" y2="12"></line>
@@ -320,7 +304,7 @@ function App() {
                     <div className="qr-container">
                       <img className="scan" src={scanme} alt="Scan me" />
                       <div className="qr-code">
-                        <QRCode value={uploadedFilesInfo[0].fileDownloadUrl} size={100} />
+                        <QRCode value={`${API_URL}/download/${uploadedFilesInfo[0].code}`} size={100} />
                       </div>
                     </div>
                   </div>
@@ -333,7 +317,7 @@ function App() {
               <div className="fileinput-container">
                 <input className="fileinput" type="text" placeholder="Enter file code" value={inputCode} onChange={e => setInputCode(e.target.value)} />
               </div>
-              <button className="btn" onClick={downloadWithCode} disabled={!inputCode}>Download</button>
+              <button className="btn" onClick={() => downloadWithCode(inputCode)} disabled={!inputCode}>Download</button>
             </div>
           </div>
         </div>

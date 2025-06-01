@@ -173,22 +173,36 @@ function App() {
     if (code) {
       try {
         setDownloadStatus('Fetching files...');
-        const checkResponse = await axios.head(`${API_URL}/download/${code}`);
+        console.log('Requesting download for code:', code);
+        const response = await axios.get(`${API_URL}/download/${code}`);
+        console.log('Download response:', response.data);
         
-        if (checkResponse.status === 200) {
-          const downloadUrl = `${API_URL}/download/${code}`;
-          setDownloadStatus('Opening download...');
-          
-          const link = document.createElement('a');
-          link.href = downloadUrl;
-          link.target = '_blank';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          
-          setDownloadStatus('Download initiated. Check your browser tabs/downloads.');
-          setTimeout(() => setDownloadStatus(''), 5000);
+        if (response.data.success) {
+          const fileGroup = response.data;
+          console.log('File group:', fileGroup);
+          if (fileGroup.files && fileGroup.files.length > 0) {
+            setDownloadStatus(`Opening ${fileGroup.files.length} file(s)...`);
+            
+            fileGroup.files.forEach(file => {
+              console.log('Creating download link for file:', file);
+              const downloadUrl = `${API_URL}/download/${code}?file=${file.filename}`;
+              const link = document.createElement('a');
+              link.href = downloadUrl;
+              link.target = '_blank';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            });
+            
+            setDownloadStatus('Downloads initiated. Check your browser tabs/downloads.');
+            setTimeout(() => setDownloadStatus(''), 5000);
+          } else {
+            console.log('No files found in response');
+            setError('No files found for this code');
+            setDownloadStatus('');
+          }
         } else {
+          console.log('Response not successful:', response.data);
           setError('No files found for this code');
           setDownloadStatus('');
         }

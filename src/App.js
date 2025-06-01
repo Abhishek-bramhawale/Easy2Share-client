@@ -26,6 +26,8 @@ function App() {
   const [copySuccess, setCopySuccess] = useState('');
   const [downloadStatus, setDownloadStatus] = useState('');
   const [showMultiDownloadInstruction, setShowMultiDownloadInstruction] = useState(false);
+  const [showColdStartMessage, setShowColdStartMessage] = useState(false);
+  const coldStartTimerRef = useRef(null);
 
   const formatBytes = (bytes, decimals = 2) => {
     if (bytes === 0) return '0 Bytes';
@@ -77,6 +79,12 @@ function App() {
       clearInterval(progressIntervalRef.current);
       progressIntervalRef.current = null;
     }
+    // Clear cold start timer and hide message when upload stops
+    if (coldStartTimerRef.current) {
+        clearTimeout(coldStartTimerRef.current);
+        coldStartTimerRef.current = null;
+    }
+    setShowColdStartMessage(false);
   };
 
   const handleUploadFiles = async () => {
@@ -94,6 +102,14 @@ function App() {
     setUploadedSize(0);
     lastLoadedRef.current = 0;
     lastTimeRef.current = Date.now();
+    setShowColdStartMessage(false); // Hide message at the start of upload
+
+    // Set a timer to show cold start message if progress is stuck at 0
+    coldStartTimerRef.current = setTimeout(() => {
+        if (uploadProgress === 0 && uploading) { // Check against the state value at the time the timer fires
+            setShowColdStartMessage(true);
+        }
+    }, 3000); // 3 seconds delay
 
     const formData = new FormData();
     files.forEach(file => {
@@ -103,6 +119,13 @@ function App() {
     try {
       const res = await axios.post(`${API_URL}/upload`, formData, {
         onUploadProgress: (progressEvent) => {
+          // Clear cold start timer if progress starts
+          if (progressEvent.loaded > 0 && coldStartTimerRef.current) {
+              clearTimeout(coldStartTimerRef.current);
+              coldStartTimerRef.current = null;
+              setShowColdStartMessage(false); // Hide message once progress is made
+          }
+
           const currentTime = Date.now();
           const timeDiff = (currentTime - lastTimeRef.current) / 1000; // Convert to seconds
           const loadedDiff = progressEvent.loaded - lastLoadedRef.current;
@@ -236,6 +259,13 @@ function App() {
                 {uploadButtonText}
               </button>
               {error && <p style={{ color: 'red' }}>{error}</p>}
+
+              {/* Cold Start Message */}
+              {showColdStartMessage && (
+                <p style={{ color: 'yellow', marginTop: '10px', fontSize: '14px', textAlign: 'center' }}>
+                  Render's free plan causes cold starts after inactivity — please wait just 5 seconds..
+                </p>
+              )}
 
               {uploading && (
                 <div className="progress-container">

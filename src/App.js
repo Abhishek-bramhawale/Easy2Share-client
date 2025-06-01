@@ -165,33 +165,31 @@ function App() {
           console.log('Number of files to download:', files.length);
           setDownloadStatus(`Initiating ${files.length} downloads...`);
           
-          // Initiate downloads by opening each file URL in a new tab/window
           for (let i = 0; i < files.length; i++) {
             const file = files[i];
             console.log(`Opening download URL for file ${i + 1}:`, file.name, file.url);
             
-            // Using window.open might be more reliable for multiple downloads
-            // We create a temporary link to use its download attribute capability with window.open
+            
             const link = document.createElement('a');
             link.href = file.url;
             link.download = file.name; // Suggests a filename for download
-            link.target = '_blank'; // Open in a new tab
+            link.target = '_blank'; 
             
             // Append the link to the body temporarily and then open it
             document.body.appendChild(link);
             window.open(link.href, '_blank');
             document.body.removeChild(link);
             
-            // Add a small delay between opening windows
+            
             if (i < files.length - 1) {
                console.log('Adding delay before opening next download...');
-              await new Promise(resolve => setTimeout(resolve, 500)); // Slightly shorter delay
+              await new Promise(resolve => setTimeout(resolve, 500)); 
             }
           }
           
           setDownloadStatus('Download initiated for all files. Check your browser tabs/downloads.');
           console.log('All download windows/tabs initiated.');
-          setTimeout(() => setDownloadStatus(''), 5000); // Keep message longer for user to notice
+          setTimeout(() => setDownloadStatus(''), 5000); 
         } else {
           console.error('Download failed - response success is false:', response.data);
           setError(response.data.error || 'Failed to fetch file information for download. Please try again.');
@@ -258,7 +256,7 @@ function App() {
               {uploadedFilesInfo.length > 0 && uploadedFilesInfo[0] && uploadedFilesInfo[0].files && (
                 <div className="uploaded-files-section">
                   <h3 style={{marginBottom:10}}>Uploaded Files:</h3>
-                  {/* Instruction for multiple file downloads */}
+                  
                   {showMultiDownloadInstruction && (
                     <p style={{ color: 'orange', marginTop: '10px', marginBottom: '10px', fontSize: '14px' }}>
                       You have uploaded multiple files. When you use the download code/link, your browser may block multiple downloads as pop-ups. Please allow pop-ups for this site if prompted.

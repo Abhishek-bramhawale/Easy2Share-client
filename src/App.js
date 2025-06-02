@@ -110,13 +110,7 @@ function App() {
     setUploadedSize(0);
     lastLoadedRef.current = 0;
     lastTimeRef.current = Date.now();
-    setShowColdStartMessage(false); // Hide message at the start of upload
-
-    coldStartTimerRef.current = setTimeout(() => {
-        if (uploadProgress === 0 && uploading) { // Check against the state value at the time the timer fires
-            setShowColdStartMessage(true);
-        }
-    }, 3000); // 3 seconds delay
+    setShowColdStartMessage(true); // Show message at the start of upload
 
     const formData = new FormData();
     files.forEach(file => {
@@ -126,12 +120,6 @@ function App() {
     try {
       const res = await axios.post(`${API_URL}/upload`, formData, {
         onUploadProgress: (progressEvent) => {
-          if (progressEvent.loaded > 0 && coldStartTimerRef.current) {
-              clearTimeout(coldStartTimerRef.current);
-              coldStartTimerRef.current = null;
-              setShowColdStartMessage(false); // Hide message once progress is made
-          }
-
           const currentTime = Date.now();
           const timeDiff = (currentTime - lastTimeRef.current) / 1000; // Convert to seconds
           const loadedDiff = progressEvent.loaded - lastLoadedRef.current;
@@ -165,6 +153,7 @@ function App() {
         setUploadProgress(0);
         setUploadSpeed(0);
         setUploadedSize(0);
+        setShowColdStartMessage(false); // Hide message when upload is complete
       }, 2500);
 
     } catch (err) {
@@ -262,13 +251,6 @@ function App() {
               </button>
               {error && <p style={{ color: 'red' }}>{error}</p>}
 
-              {/* Cold Start Message */}
-              {showColdStartMessage && (
-                <p style={{ color: 'yellow', marginTop: '10px', fontSize: '14px', textAlign: 'center' }}>
-                  Render's free plan causes cold starts after inactivity — please wait just 5 seconds..
-                </p>
-              )}
-
               {uploading && (
                 <div className="progress-container" title="If the progress is stuck at 0%, it may be because Render's free plan puts the server to sleep after 15 minutes of inactivity. Just wait a few seconds..">
                   <div 
@@ -283,6 +265,13 @@ function App() {
                     </span>
                   </div>
                 </div>
+              )}
+
+              {/* Cold Start Message */}
+              {showColdStartMessage && (
+                <p style={{ color: 'yellow', marginTop: '10px', fontSize: '14px', textAlign: 'center' }}>
+                  If the progress is stuck at 0%, it may be because Render's free plan puts the server to sleep after 15 minutes of inactivity. Just wait a few seconds..
+                </p>
               )}
 
               {uploadedFilesInfo.length > 0 && uploadedFilesInfo[0] && uploadedFilesInfo[0].files && (

@@ -270,7 +270,7 @@ function App() {
               {/* Cold Start Message */}
               {showColdStartMessage && (
                 <p style={{ color: 'yellow', marginTop: '10px', fontSize: '14px', textAlign: 'center' }}>
-                  If the progress is stuck at 0%, it may be because Render's free plan puts the server to sleep after 15 minutes of inactivity. Just wait a few seconds..
+                  {/* If the progress is stuck at 0%, it may be because Render's free plan puts the server to sleep after 15 minutes of inactivity. Just wait a few seconds.. */}
                 </p>
               )}
 

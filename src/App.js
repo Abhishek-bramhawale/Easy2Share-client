@@ -159,7 +159,7 @@ function App() {
     } catch (err) {
       console.error('Upload error:', err);
       stopStatusUpdates();
-      setError(err.response?.data?.error || 'Error uploading files');
+      setError(err.response?.data?.error || 'Server down!!');
       setUploading(false);
       setUploadButtonText('Upload');
       setUploadProgress(0);

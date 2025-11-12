@@ -299,16 +299,14 @@ function App() {
                       </span>
                       {copySuccess === 'Copied!' && <span className="copy-success">Copied!</span>}
                     </p>
-                    <p><strong>Link:</strong> <a 
-                      href="#" 
-                      onClick={(e) => {
-                        e.preventDefault();
+                    <p><strong>Link:</strong> <button 
+                      onClick={() => {
                         downloadWithCode(uploadedFilesInfo[0].code);
                       }} 
-                      style={{ color: 'inherit', textDecoration: 'none' }}
+                      style={{ color: 'inherit', textDecoration: 'none', background: 'none', border: 'none', padding: 0, cursor: 'pointer', font: 'inherit' }}
                     >
                       {`${API_URL}/download/${uploadedFilesInfo[0].code}`}
-                    </a>
+                    </button>
                       <span className="info-icon" title="Click to download the file" onClick={() => copyToClipboard(`${API_URL}/download/${uploadedFilesInfo[0].code}`)}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <circle cx="12" cy="12" r="10"></circle>
@@ -339,6 +337,7 @@ function App() {
                 <input className="fileinput" type="text" placeholder="Enter file code" value={inputCode} onChange={e => setInputCode(e.target.value)} />
               </div>
               <button className="btn" onClick={() => downloadWithCode(inputCode)} disabled={!inputCode}>Download</button>
+              {downloadStatus && <p style={{ color: 'blue', marginTop: '10px', fontSize: '14px' }}>{downloadStatus}</p>}
             </div>
           </div>
         </div>

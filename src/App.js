@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import QRCode from 'react-qr-code';
 import logo from './newogo2.png';
@@ -95,7 +95,7 @@ function App() {
     setShowColdStartMessage(false);
   };
 
-  const handleUploadFiles = async () => {
+  const handleUploadFiles = useCallback(async () => {
     if (files.length === 0) {
       setError('Please select files first');
       return;
@@ -166,7 +166,29 @@ function App() {
       setUploadSpeed(0);
       setUploadedSize(0);
     }
-  };
+  }, [files]);
+
+  React.useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.key === 'Enter' && files.length > 0 && !uploading) {
+        const activeElement = document.activeElement;
+        if (activeElement && (activeElement.type === 'text' || activeElement.type === 'file')) {
+          if (activeElement.type === 'file') {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+          return;
+        }
+        e.preventDefault();
+        handleUploadFiles();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [files, uploading, handleUploadFiles]);
 
   const downloadWithCode = async (code) => {
     if (code) {
@@ -244,7 +266,19 @@ function App() {
             <div className="section upload-section">
               <h2 className="section-title">Upload Files</h2>
               <div className="fileinput-container">
-                <input className="fileinput" type="file" multiple onChange={handleFileChange} />
+                <input 
+                  className="fileinput" 
+                  type="file" 
+                  multiple 
+                  onChange={handleFileChange}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && files.length > 0 && !uploading) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleUploadFiles();
+                    }
+                  }}
+                />
               </div>
               <button className="btn" onClick={handleUploadFiles} disabled={uploading || files.length === 0}>
                 {uploadButtonText}
@@ -334,7 +368,19 @@ function App() {
             <div className="section download-section">
               <h2 className="section-title">Download Files</h2>
               <div className="fileinput-container">
-                <input className="fileinput" type="text" placeholder="Enter file code" value={inputCode} onChange={e => setInputCode(e.target.value)} />
+                <input 
+                  className="fileinput" 
+                  type="text" 
+                  placeholder="Enter file code" 
+                  value={inputCode} 
+                  onChange={e => setInputCode(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && inputCode.trim() !== '') {
+                      e.preventDefault();
+                      downloadWithCode(inputCode);
+                    }
+                  }}
+                />
               </div>
               <button className="btn" onClick={() => downloadWithCode(inputCode)} disabled={!inputCode}>Download</button>
               {downloadStatus && <p style={{ color: 'blue', marginTop: '10px', fontSize: '14px' }}>{downloadStatus}</p>}

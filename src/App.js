@@ -5,7 +5,7 @@ import logo from './newogo2.png';
 import scanme from './scanme.png';
 import './App.css';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_URL = process.env.REACT_APP_API_URL || 'https://easy2share-backend-gsgpd2hefrbxcwgd.centralindia-01.azurewebsites.net';
 const CLIENT_URL = 'https://easy2-share-client.vercel.app/';
 
 function App() {
